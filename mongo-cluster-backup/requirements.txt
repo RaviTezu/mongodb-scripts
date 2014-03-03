@@ -1,4 +1,2 @@
 pymongo==2.1.1
-os
-datetime
 fabric==1.7.0
