@@ -5,8 +5,9 @@ A Collection of mongodb python scripts
 
 Please check the folders in the repo for scripts:
 
-1. mongo-cluster-backup :- [For taking mongodb cluster backup]
+1. mongo-cluster-backup :- 
 ==============================================================
+*For taking mongodb cluster backups*
 - Connects to mongos host, Collects the configdb hosts and replica sets information(for mongodb hosts). 
 - Selects one configdb from the configdb set and one secondary mongodb host from each replica set. 
 - Stops the balancer on the monogos host.
