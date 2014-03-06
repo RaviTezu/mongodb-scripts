@@ -11,7 +11,7 @@ from ConfigParser import SafeConfigParser
 from fabric.api import run, settings, execute, task, env
 
 ## config_data.ini file location, as it is in the same directory just the filename is enough. 
-default_config_file = 'config_datai.ini'
+default_config_file = 'config_data.ini'
 parser = SafeConfigParser()
 parser.read(default_config_file)
 
