@@ -123,9 +123,9 @@ def data_backup(prefix, data, out, dbtype):
             logger.info("Starting mongodb backup on %s", env.host)
         logger.info("Stopping %s service on %s", dbservice.split('/')[3], env.host)
         run(dbservice + ' stop')
+        dblist = run('ls ' + data + '| egrep -v "journal|mongod.lock"')
+        dbs = dblist.split('\r\n')
         run('mkdir -p ' + out + prefix)
-        command = 'ls ' + data + '| egrep -v "journal|mongod.lock"'
-        dbs = os.popen(command).read().split('\n')[:-1]
         for db in dbs:
             run('mongodump --journal --dbpath ' + data + db + ' --out ' + out +
                 prefix)
