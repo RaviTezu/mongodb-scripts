@@ -48,7 +48,7 @@ receivers = ['user1@example.com', 'user2@example.com']
 ##send a mail:
 def sendmail():
     fh = open(logfile)
-    message = "Subject: FAILED: MongoDB backup on one or more hosts" + "\n" + fh.read()
+    message = "Subject: FAILED: MongoDB backup on one or more hosts" + "\n" +"To:"+ ','.join(receivers)  +"\n" + fh.read()
     try:
         smtpObj = smtplib.SMTP('localhost')
         smtpObj.sendmail(sender, receivers, message)
