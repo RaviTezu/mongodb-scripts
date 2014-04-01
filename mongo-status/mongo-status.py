@@ -3,9 +3,11 @@
 ##---- SCRIPT TO DISPLAY MONGO CLUSTER STATUS ----##
 
 import pymongo
+import os
 from ConfigParser import SafeConfigParser
-from progressbar import ProgressBar
-pbar = ProgressBar()
+
+##Get the terminal width, height
+rows, columns = os.popen('stty size', 'r').read().split()
 
 ##connect to mongos host:
 def mongos_connect(host, port):
@@ -30,8 +32,10 @@ def getReplicas(shards):
 
 ##prints replica sets:
 def printReplicas(reps):
-    for k, v in pbar(sorted(reps.iteritems())):
-        print k + " : " + v
+    print "\n" + "------------------ SHARDS INFORMATION ------------------".center(int(columns),'-') + "\n"
+    for k, v in sorted(reps.iteritems()):
+        print k + " : " + v + "\n"
+    print "-"*int(columns) + "\n"
 
 ##main function:
 def main():
