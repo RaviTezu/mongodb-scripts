@@ -10,21 +10,6 @@ import datetime
 from ConfigParser import SafeConfigParser
 from fabric.api import run, settings, execute, task, env
 
-## config_data.ini file location, as it is in the same directory just the filename is enough. 
-default_config_file = 'config_data.ini'
-parser = SafeConfigParser()
-parser.read(default_config_file)
-
-#Parse the values
-sshuser = parser.get('default', 'sshuser')
-sshkey = parser.get('default', 'sshkey')
-configdb_dbpath = parser.get('default', 'configdb_dbpath') 
-mongodb_dbpath = parser.get('default', 'mongodb_dbpath')
-dumppath = parser.get('default', 'dumppath')
-logfile = parser.get('default', 'logfile')
-mongos_host = parser.get('default', 'mongos_host')
-mongos_port = parser.get('default', 'mongos_port')
-mongos_configfile = parser.get('default', 'mongos_configfile')
 
 ##For storing selected secondary hosts for backup.
 secondaries = []
@@ -211,8 +196,25 @@ def getSecondary(rset):
 
 ##main function:
 def main():
+    ## config_data.ini file location, as it is in the same directory just the filename is enough. 
+    default_config_file = 'config_data.ini'
+    parser = SafeConfigParser()
+    parser.read(default_config_file)
+    #Parse the values
+    sshuser = parser.get('default', 'sshuser')
+    sshkey = parser.get('default', 'sshkey')
+    configdb_dbpath = parser.get('default', 'configdb_dbpath') 
+    mongodb_dbpath = parser.get('default', 'mongodb_dbpath')
+    dumppath = parser.get('default', 'dumppath')
+    logfile = parser.get('default', 'logfile')
+    mongos_host = parser.get('default', 'mongos_host')
+    mongos_port = parser.get('default', 'mongos_port')
+    mongos_configfile = parser.get('default', 'mongos_configfile')
+    #get the config dbs
     configdbs = getConfigs()
+    #get shards info.
     shards_info = mongos_connect(mongos_host, mongos_port)
+    #get replica sets info.
     rsets = getReplicas(shards_info)
     printReplicas(rsets)
     for rs in rsets.values():
