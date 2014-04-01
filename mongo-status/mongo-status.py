@@ -21,6 +21,10 @@ def mongos_connect(host, port):
         print "Unable to connect to the mongo host"
         print e
 
+##connect to mongod host:
+def mongod_connect(host, port):
+    
+
 ##grep replica sets from shards_info
 def getReplicas(shards):
     replicas = {}
@@ -49,6 +53,8 @@ def main():
     #get replica sets info.
     rsets = getReplicas(shards_info)
     printReplicas(rsets)
+    for rs in rsets.values():
+    
 
 
 if __name__ == '__main__':
