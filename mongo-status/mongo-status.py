@@ -4,6 +4,8 @@
 
 import pymongo
 from ConfigParser import SafeConfigParser
+from progressbar import ProgressBar
+pbar = ProgressBar()
 
 ##connect to mongos host:
 def mongos_connect(host, port):
@@ -28,7 +30,7 @@ def getReplicas(shards):
 
 ##prints replica sets:
 def printReplicas(reps):
-    for k, v in sorted(reps.iteritems()):
+    for k, v in pbar(sorted(reps.iteritems())):
         print k + " : " + v
 
 ##main function:
