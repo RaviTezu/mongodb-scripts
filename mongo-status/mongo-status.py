@@ -2,12 +2,14 @@
 
 ##---- SCRIPT TO DISPLAY MONGO CLUSTER STATUS ----##
 
-import pymongo
-import os
+import pymongo, os
 from ConfigParser import SafeConfigParser
 
 ##Get the terminal width, height
 rows, columns = os.popen('stty size', 'r').read().split()
+
+##For storing RS names
+rsnames=[]
 
 ##connect to mongos host:
 def mongos_connect(host, port):
@@ -20,10 +22,6 @@ def mongos_connect(host, port):
     except Exception, e:
         print "Unable to connect to the mongo host"
         print e
-
-##connect to mongod host:
-def mongod_connect(host, port):
-    
 
 ##grep replica sets from shards_info
 def getReplicas(shards):
@@ -38,6 +36,7 @@ def getReplicas(shards):
 def printReplicas(reps):
     print "\n" + "------------------ SHARDS INFORMATION ------------------".center(int(columns),'-') + "\n"
     for k, v in sorted(reps.iteritems()):
+        rsnames.append(k)
         print k + " : " + v + "\n"
     print "-"*int(columns) + "\n"
 
@@ -53,7 +52,7 @@ def main():
     #get replica sets info.
     rsets = getReplicas(shards_info)
     printReplicas(rsets)
-    for rs in rsets.values():
+     
     
 
 
