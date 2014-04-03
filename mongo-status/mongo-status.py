@@ -2,7 +2,8 @@
 
 ##---- SCRIPT TO DISPLAY MONGO CLUSTER STATUS ----##
 
-import pymongo, os
+import pymongo
+import os
 import sys
 from time import sleep
 from ConfigParser import SafeConfigParser
@@ -22,10 +23,11 @@ YellowB = '\033[43m'
 BlueB = '\033[44m'
 CyanB = '\033[46m'
 WhiteB = '\033[47m'
-end   = '\033[0m'
+end = '\033[0m'
 
 ##HEALTH CHECK
 health = []
+
 
 ##connect to mongos host:
 def mongos_connect(host, port):
@@ -38,6 +40,7 @@ def mongos_connect(host, port):
     except Exception:
         pass
 
+
 ##connect to mongod host:
 def mongod_connect(host, port):
     try:
@@ -49,6 +52,7 @@ def mongod_connect(host, port):
         print "Unable to connect to the mongo host"
         print e
 
+
 ##get Shards info:
 def getShards(shards):
     shs = {}
@@ -58,49 +62,53 @@ def getShards(shards):
         shs[rs_name] = rs_mems
     return shs
 
+
 ##prints Shards:
 def printShards(sh_info):
-    print "\n" +Cyan+"------------------ SHARDS INFORMATION ------------------".center(int(columns),'-')+end+ "\n"
+    print "\n" + Cyan + "------------------ SHARDS INFORMATION ------------------".center(int(columns), '-') + end + "\n"
     for k, v in sorted(sh_info.iteritems()):
         print Red + k + end + " : " + v + "\n"
     #print Cyan + "-"*int(columns) +end+ "\n"
 
+
 ##get Replica info:
 def getReplicas(rsets):
-    print "\n" +Cyan+"------------------ REPLICA SETS INFORMATION ------------------".center(int(columns),'-')+end+ "\n"
+    print "\n" + Cyan + "------------------ REPLICA SETS INFORMATION ------------------".center(int(columns), '-') + end + "\n"
     sync = {}
     for k, v in sorted(rsets.iteritems()):
         rss = {}
-        print k + ":" 
+        print k + ":"
         for host in v.split(','):
             h, p = host.split(':')
-            info = mongod_connect(h,int(p))
+            info = mongod_connect(h, int(p))
             #print host
             if 'syncingTo' in info:
                 sync[host] = info['syncingTo']
-            elif'errmsg' in info['members'][0]: 
+            elif'errmsg' in info['members'][0]:
                 sync[host] = info['members'][0]['errmsg']
             else:
                 sync[host] = host
             for x in (info['members']):
-                rss[x['name']] =  x['stateStr'] 
+                rss[x['name']] = x['stateStr']
             max1 = max(len(x) for x in rss)
-        for k1, v1 in sorted( rss.iteritems()):
+        for k1, v1 in sorted(rss.iteritems()):
             if v1 == "PRIMARY":
                 state = GreenB + v1 + end
             elif v1 == "SECONDARY":
                 state = CyanB + v1 + end
             elif v1 == "ARBITER":
                 state = YellowB + v1 + end
-            else: 
+            else:
                 state = RedB + v1 + end
                 health.append(k1.split(':')[0])
-            print Red + '{0:<45}'.format(k1.split(':')[0]) +" : " + end + '{0:<35}'.format(state) + Cyan +"SyncingTo :"+sync.get(k1, "---")+end
+            print Red + '{0:<45}'.format(k1.split(':')[0]) + " : " + end + '{0:<35}'.format(state) + Cyan + "SyncingTo :" + sync.get(k1, "---") + end
         print "\n"
+
 
 ##main function:
 def main():
-    ## config_data.ini file location, as it is in the same directory just the filename is enough. 
+    ## config_data.ini file location, as it is in the same directory
+    ## just the filename is enough.
     default_config_file = 'config_data.ini'
     parser = SafeConfigParser()
     parser.read(default_config_file)
@@ -110,28 +118,27 @@ def main():
     shards = getShards(shards_info)
     printShards(shards)
     getReplicas(shards)
-    if len(health) > 0: 
+    if len(health) > 0:
         for i in range(8):
             sys.stdout.write('\r')
-            if i%2==0:
-                sys.stdout.write("%s%s" % ("CLUSTER HEALTH: "," Needs Attention "))
-            else: 
-                sys.stdout.write("%s%s%s%s" % ("CLUSTER HEALTH: ",RedB," Needs Attention ",end))
+            if i % 2 == 0:
+                sys.stdout.write("%s%s" % ("CLUSTER HEALTH: ", " Needs Attention "))
+            else:
+                sys.stdout.write("%s%s%s%s" % ("CLUSTER HEALTH: ", RedB, " Needs Attention ", end))
             sys.stdout.flush()
             sleep(0.5)
-    else: 
+        print "\n" + "Check the following hosts: " + Red + ", ".join(health) + end + "\n"
+    else:
         for i in range(10):
             sys.stdout.write('\r')
-            if i%2==0:
-                sys.stdout.write("%s%s" % ("CLUSTER HEALTH: "," OK "))
-            else: 
-                sys.stdout.write("%s%s%s%s" % ("CLUSTER HEALTH: ",GreenB," OK ",end))
+            if i % 2 == 0:
+                sys.stdout.write("%s%s" % ("CLUSTER HEALTH: ", " OK "))
+            else:
+                sys.stdout.write("%s%s%s%s" % ("CLUSTER HEALTH: ", GreenB, " OK ", end))
             sys.stdout.flush()
             sleep(0.5)
-    print "\n"+"Check the following hosts: " + Red + ", ".join(health) + end + "\n"
-    print "\n" + Cyan + "-"*int(columns) +end+ "\n"
-    
+    print "\n" + Cyan + "-"*int(columns) + end + "\n"
+
 
 if __name__ == '__main__':
     main()
-
