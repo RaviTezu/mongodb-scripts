@@ -15,13 +15,11 @@ Red = '\033[31m'
 Green = '\033[32m'
 Yellow = '\033[33m'
 Blue = '\033[34m'
-Magenta = '\033[35m'
 Cyan = '\033[36m'
 RedB = '\033[41m'
 GreenB = '\033[42m'
 YellowB = '\033[43m'
 BlueB = '\033[44m'
-MagentaB = '\033[45m'
 CyanB = '\033[46m'
 WhiteB = '\033[47m'
 end   = '\033[0m'
@@ -97,7 +95,7 @@ def getReplicas(rsets):
             else: 
                 state = RedB + v1 + end
                 health.append(k1.split(':')[0])
-            print Red + '{0:<45}'.format(k1.split(':')[0]) +" : " + end + '{0:<35}'.format(state) + Blue +"SyncingTo :"+sync.get(k1, "---")+end
+            print Red + '{0:<45}'.format(k1.split(':')[0]) +" : " + end + '{0:<35}'.format(state) + Cyan +"SyncingTo :"+sync.get(k1, "---")+end
         print "\n"
 
 ##main function:
@@ -130,7 +128,7 @@ def main():
                 sys.stdout.write("%s%s%s%s" % ("CLUSTER HEALTH: ",GreenB," OK ",end))
             sys.stdout.flush()
             sleep(0.5)
-    print "\n"+"Check the following hosts: " + Red + str(health) + end + "\n"
+    print "\n"+"Check the following hosts: " + Red + ", ".join(health) + end + "\n"
     print "\n" + Cyan + "-"*int(columns) +end+ "\n"
     
 
