@@ -8,8 +8,21 @@ from ConfigParser import SafeConfigParser
 ##Get the terminal width, height
 rows, columns = os.popen('stty size', 'r').read().split()
 
-##For storing RS names
-rsnames=[]
+##Colors
+Red = '\033[31m'
+Green = '\033[32m'
+Yellow = '\033[33m'
+Blue = '\033[34m'
+Magenta = '\033[35m'
+Cyan = '\033[36m'
+RedB = '\033[41m'
+GreenB = '\033[42m'
+YellowB = '\033[43m'
+BlueB = '\033[44m'
+MagentaB = '\033[45m'
+CyanB = '\033[46m'
+WhiteB = '\033[47m'
+end   = '\033[0m'
 
 ##connect to mongos host:
 def mongos_connect(host, port):
@@ -19,26 +32,62 @@ def mongos_connect(host, port):
         collection = db.shards
         shards = collection.find()
         return shards
+    except Exception:
+        pass
+
+##connect to mongod host:
+def mongod_connect(host, port):
+    try:
+        client = pymongo.MongoClient(host, port)
+        db = client.admin
+        cmd = db.command('replSetGetStatus')
+        return cmd
     except Exception, e:
         print "Unable to connect to the mongo host"
         print e
 
-##grep replica sets from shards_info
-def getReplicas(shards):
-    replicas = {}
+##get Shards info:
+def getShards(shards):
+    shs = {}
     for rs in shards:
         rs_name = rs['_id']
         rs_mems = rs['host'].split('/')[1]
-        replicas[rs_name] = rs_mems
-    return replicas
+        shs[rs_name] = rs_mems
+    return shs
 
-##prints replica sets:
-def printReplicas(reps):
-    print "\n" + "------------------ SHARDS INFORMATION ------------------".center(int(columns),'-') + "\n"
-    for k, v in sorted(reps.iteritems()):
-        rsnames.append(k)
-        print k + " : " + v + "\n"
-    print "-"*int(columns) + "\n"
+##prints Shards:
+def printShards(sh_info):
+    print "\n" +Cyan+"------------------ SHARDS INFORMATION ------------------".center(int(columns),'-')+end+ "\n"
+    for k, v in sorted(sh_info.iteritems()):
+        print Red + k + end + " : " + v + "\n"
+    #print Cyan + "-"*int(columns) +end+ "\n"
+
+##get Replica info:
+def getReplicas(rsets):
+    print "\n" +Cyan+"------------------ REPLICA SETS INFORMATION ------------------".center(int(columns),'-')+end+ "\n"
+    sync = {}
+    for k, v in sorted(rsets.iteritems()):
+        rss = {}
+        print Red + k + end + ":"
+        for host in v.split(','):
+            h, p = host.split(':')
+            info = mongod_connect(h,int(p))
+            #print host
+            if 'syncingTo' in info['members'][0]:
+                sync[host] = info['members'][0]['syncingTo']
+            elif'errmsg' in info['members'][0]: 
+                sync[host] = info['members'][0]['errmsg']
+            else:
+                sync[host] = "Not available"
+            for x in (info['members']):
+                rss[x['name']] =  x['stateStr'] 
+            max1 = max(len(x) for x in rss)
+        for k1, v1 in sorted( rss.iteritems()):
+            #print  Red + k1.split(':')[0] + end +" : " + Blue +"State: " +v1 + end+ Yellow +"  Sync message: " + sync.get(k1, "---") + end 
+            #print '{:<{}}'.format(k1, max1) + ":"
+            #print Red +'{:<{}}'.format(k1, max1) + end +" : " +  Blue + '{:<25}'.format(v1) +end+ Yellow +"SyncingTo :"+sync.get(k1, "---")+end
+            print Red +'{:<45}'.format(k1.split(':')[0]) + end +" : " +  Blue + '{:<25}'.format(v1) +end+ Yellow +"SyncingTo :"+sync.get(k1, "---")+end
+        print "\n"
 
 ##main function:
 def main():
@@ -49,12 +98,11 @@ def main():
     mongos_host = str(parser.get('default', 'mongos_host'))
     mongos_port = int(parser.get('default', 'mongos_port'))
     shards_info = mongos_connect(mongos_host, mongos_port)
-    #get replica sets info.
-    rsets = getReplicas(shards_info)
-    printReplicas(rsets)
-     
+    shards = getShards(shards_info)
+    printShards(shards)
+    getReplicas(shards)
+    print Cyan + "-"*int(columns) +end+ "\n"
     
-
 
 if __name__ == '__main__':
     main()
