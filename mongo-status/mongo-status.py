@@ -97,7 +97,7 @@ def getReplicas(rsets):
             else: 
                 state = RedB + v1 + end
                 health.append(k1.split(':')[0])
-            print Red + '{:<45}'.format(k1.split(':')[0]) +" : " + end + '{:<35}'.format(state) + Blue +"SyncingTo :"+sync.get(k1, "---")+end
+            print Red + '{0:<45}'.format(k1.split(':')[0]) +" : " + end + '{0:<35}'.format(state) + Blue +"SyncingTo :"+sync.get(k1, "---")+end
         print "\n"
 
 ##main function:
@@ -130,7 +130,7 @@ def main():
                 sys.stdout.write("%s%s%s%s" % ("CLUSTER HEALTH: ",GreenB," OK ",end))
             sys.stdout.flush()
             sleep(0.5)
-    print "\n"++"Check the following hosts: " + Red + str(health) + end
+    print "\n"+"Check the following hosts: " + Red + str(health) + end + "\n"
     print "\n" + Cyan + "-"*int(columns) +end+ "\n"
     
 
