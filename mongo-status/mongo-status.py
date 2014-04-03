@@ -3,6 +3,8 @@
 ##---- SCRIPT TO DISPLAY MONGO CLUSTER STATUS ----##
 
 import pymongo, os
+import sys
+from time import sleep
 from ConfigParser import SafeConfigParser
 
 ##Get the terminal width, height
@@ -23,6 +25,9 @@ MagentaB = '\033[45m'
 CyanB = '\033[46m'
 WhiteB = '\033[47m'
 end   = '\033[0m'
+
+##HEALTH CHECK
+health = []
 
 ##connect to mongos host:
 def mongos_connect(host, port):
@@ -68,25 +73,31 @@ def getReplicas(rsets):
     sync = {}
     for k, v in sorted(rsets.iteritems()):
         rss = {}
-        print Red + k + end + ":"
+        print k + ":" 
         for host in v.split(','):
             h, p = host.split(':')
             info = mongod_connect(h,int(p))
             #print host
-            if 'syncingTo' in info['members'][0]:
-                sync[host] = info['members'][0]['syncingTo']
+            if 'syncingTo' in info:
+                sync[host] = info['syncingTo']
             elif'errmsg' in info['members'][0]: 
                 sync[host] = info['members'][0]['errmsg']
             else:
-                sync[host] = "Not available"
+                sync[host] = host
             for x in (info['members']):
                 rss[x['name']] =  x['stateStr'] 
             max1 = max(len(x) for x in rss)
         for k1, v1 in sorted( rss.iteritems()):
-            #print  Red + k1.split(':')[0] + end +" : " + Blue +"State: " +v1 + end+ Yellow +"  Sync message: " + sync.get(k1, "---") + end 
-            #print '{:<{}}'.format(k1, max1) + ":"
-            #print Red +'{:<{}}'.format(k1, max1) + end +" : " +  Blue + '{:<25}'.format(v1) +end+ Yellow +"SyncingTo :"+sync.get(k1, "---")+end
-            print Red +'{:<45}'.format(k1.split(':')[0]) + end +" : " +  Blue + '{:<25}'.format(v1) +end+ Yellow +"SyncingTo :"+sync.get(k1, "---")+end
+            if v1 == "PRIMARY":
+                state = GreenB + v1 + end
+            elif v1 == "SECONDARY":
+                state = CyanB + v1 + end
+            elif v1 == "ARBITER":
+                state = YellowB + v1 + end
+            else: 
+                state = RedB + v1 + end
+                health.append(k1.split(':')[0])
+            print Red + '{:<45}'.format(k1.split(':')[0]) +" : " + end + '{:<35}'.format(state) + Blue +"SyncingTo :"+sync.get(k1, "---")+end
         print "\n"
 
 ##main function:
@@ -101,7 +112,26 @@ def main():
     shards = getShards(shards_info)
     printShards(shards)
     getReplicas(shards)
-    print Cyan + "-"*int(columns) +end+ "\n"
+    if len(health) > 0: 
+        for i in range(8):
+            sys.stdout.write('\r')
+            if i%2==0:
+                sys.stdout.write("%s%s" % ("CLUSTER HEALTH: "," Needs Attention "))
+            else: 
+                sys.stdout.write("%s%s%s%s" % ("CLUSTER HEALTH: ",RedB," Needs Attention ",end))
+            sys.stdout.flush()
+            sleep(0.5)
+    else: 
+        for i in range(10):
+            sys.stdout.write('\r')
+            if i%2==0:
+                sys.stdout.write("%s%s" % ("CLUSTER HEALTH: "," OK "))
+            else: 
+                sys.stdout.write("%s%s%s%s" % ("CLUSTER HEALTH: ",GreenB," OK ",end))
+            sys.stdout.flush()
+            sleep(0.5)
+    print "\n"++"Check the following hosts: " + Red + str(health) + end
+    print "\n" + Cyan + "-"*int(columns) +end+ "\n"
     
 
 if __name__ == '__main__':
