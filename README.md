@@ -15,3 +15,11 @@ Please check the folders in the repo for scripts:
 - Connects to all the selected secondary monogdb hosts *simultaneously*(Fabric parallel mode) and stops the mongodb service on the hosts and runs the mongodbdump. Once mongodbdump is completed, starts the monogodb service back. 
 - Starts the balancer on the mongos host.
 
+2. mongo-status :-
+==============================================================
+*For displaying the cluster status*
+- Connects to mongos host and collects the shards info. by running sh.status().
+- Displays the hosts in shards, and the replicasets.[Plan to include db names and shard key info. in future]
+- Connects to replica set members and gets the current state of each host. 
+- Displays the same for each replica set. 
+- Display the Cluster status. "Needs Attention"/"OK" 
