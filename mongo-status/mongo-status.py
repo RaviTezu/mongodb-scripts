@@ -122,12 +122,13 @@ def main():
         for i in range(8):
             sys.stdout.write('\r')
             if i % 2 == 0:
-                sys.stdout.write("%s%s" % ("CLUSTER HEALTH: ", " Needs Attention "))
+                sys.stdout.write("%s%s" % ("CLUSTER HEALTH: ", " Degraded "))
             else:
-                sys.stdout.write("%s%s%s%s" % ("CLUSTER HEALTH: ", RedB, " Needs Attention ", end))
+                sys.stdout.write("%s%s%s%s" % ("CLUSTER HEALTH: ", RedB, " Degraded ", end))
             sys.stdout.flush()
             sleep(0.5)
-        print "\n" + "Check the following hosts: " + Red + ", ".join(health) + end + "\n"
+        print "\n"
+        print "\n" + "The following hosts needs attentions: "+ "\n" + BlueB + ", ".join(health) + end + "\n"
     else:
         for i in range(10):
             sys.stdout.write('\r')
