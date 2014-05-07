@@ -23,3 +23,4 @@ Please check the folders in the repo for scripts:
 - Connects to replica set members and gets the current state of each host. 
 - Displays the status for each replica member. [Node name - Current state - SyncingTo]
 - Display the Cluster status. "Needs Attention"/"OK". 
+- There's a mogostatus_webcheck sub directory which can provide you with a web url for checking the mongocluster status from your browser.
