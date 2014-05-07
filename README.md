@@ -21,5 +21,5 @@ Please check the folders in the repo for scripts:
 - Connects to mongos host and collects the shards info. by running sh.status().
 - Displays the hosts in shards, and the replicasets.[Plan to include db names and shard key info. in future]
 - Connects to replica set members and gets the current state of each host. 
-- Displays the same for each replica set. 
-- Display the Cluster status. "Needs Attention"/"OK" 
+- Displays the status for each replica member. [Node name - Current state - SyncingTo]
+- Display the Cluster status. "Needs Attention"/"OK". 

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-##---- SCRIPT TO DISPLAY MONGO CLUSTER STATUS ----##
+##---- SCRIPT TO DISPLAY MONGO CLUSTER STATUS ON CLI----##
 
 import pymongo
 import os

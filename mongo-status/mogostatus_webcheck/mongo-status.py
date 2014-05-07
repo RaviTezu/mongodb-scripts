@@ -1,15 +1,21 @@
 #!/usr/bin/python
 
-##---- SCRIPT TO DISPLAY MONGO CLUSTER STATUS ----##
+##---- SCRIPT TO DISPLAY MONGO CLUSTER STATUS ON CLI/WEB ----##
 
 import pymongo
 import os
 import sys
-from time import sleep
+import time
 from ConfigParser import SafeConfigParser
 
 ##Get the terminal width, height
-rows, columns = os.popen('stty size', 'r').read().split()
+##Having this script as a cron would error out if the following condition 
+##is not used, as stty interrogates the terminal, and cron runs things without a terminal.
+if sys.stdout.isatty():
+    rows, columns = os.popen('stty size', 'r').read().split()
+else: 
+    rows = "38"
+    columns = "144"
 
 ##Colors
 Red = '\033[31m'
@@ -89,10 +95,10 @@ def getReplicas(rsets, html):
             if info != None:
                 if 'syncingTo' in info:
                     sync[host] = info['syncingTo']
-            elif'errmsg' in info['members'][0]:
-                sync[host] = info['members'][0]['errmsg']
-            else:
-                sync[host] = host
+                elif 'errmsg' in info['members'][0]:
+                    sync[host] = info['members'][0]['errmsg']
+                else:
+                    sync[host] = host
                 for x in (info['members']):
                     rss[x['name']] = x['stateStr']
                 max1 = max(len(x) for x in rss)
@@ -116,14 +122,18 @@ def getReplicas(rsets, html):
 def main():
     ## config_data.ini file location, as it is in the same directory
     ## just the filename is enough.
-    default_config_file = 'config_data2.ini'
+    default_config_file = 'config-mongostatus.ini'
+    ##html file to which the script puts the status info.  
+    ##To access the mongocluster status from your brower you need apache to be running \
+    ##and you should have a .conf file in place to allow accessing the file. 
+    html_file = '/var/www/mongostatus/status.html'
     parser = SafeConfigParser()
     parser.read(default_config_file)
     mongos_host = str(parser.get('default', 'mongos_host'))
     mongos_port = int(parser.get('default', 'mongos_port'))
-    html_file   = str(parser.get('default', 'html_file'))
     html = open(html_file,'wb') 
     html.write("<html><body><pre>")
+    html.write(time.strftime("%c") + " " + time.strftime("%Z") +"\n" )
     shards_info = mongos_connect(mongos_host, mongos_port)
     shards = getShards(shards_info)
     printShards(shards, html)
@@ -144,4 +154,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
