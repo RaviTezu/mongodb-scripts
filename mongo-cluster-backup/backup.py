@@ -220,6 +220,7 @@ def main():
     for rs in rsets.values():
         getSecondary(rs)
     logger.info("Selected secondary node(s) for backup: %s", secondaries)
+    #**It is recommended not to use the first configdb host, so this has to be changed**
     logger.info("Selected configdb node(s) for backup: %s", configdbs[0].split(':')[0])
     today = datetime.datetime.now()
     backup_date = str(today.strftime("%Y-%m-%d-%H:%M"))
@@ -227,6 +228,7 @@ def main():
     try:
         #configdb backup
         dbtype = "configdb"
+        #**It is recommended not to use the first configdb host, so this has to be changed**
         backup(configdbs[0].split(':')[0], backup_date, sshuser, sshkey, configdb_dbpath, dumppath, dbtype)
         #mongodb backup
         dbtype = "mongodb"
