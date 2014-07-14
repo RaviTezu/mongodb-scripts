@@ -37,8 +37,9 @@ def mongos_connect(host, port):
         collection = db.shards
         shards = collection.find()
         return shards
-    except Exception:
-        pass
+    except Exception, e:
+        print "Unable to connect to mongos host"
+        print e
 
 
 ##connect to mongod host:
@@ -82,6 +83,7 @@ def getReplicas(rsets):
             h, p = host.split(':')
             info = mongod_connect(h, int(p))
             #print host
+            #This appears to be not good coding, this part needs my love some time later!
             if 'syncingTo' in info:
                 sync[host] = info['syncingTo']
             elif'errmsg' in info['members'][0]:
